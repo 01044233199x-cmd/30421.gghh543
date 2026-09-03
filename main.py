@@ -125,20 +125,40 @@ html_code = """
 </div>
 
 <script>
-    // 브롤스타즈 브롤러 목록 데이터
-    const brawlerNames = [
-        "쉘리", "니타", "콜트", "불", "엘 프리모", "바리", "포코", "로사", "리코", "데릴",
-        "페니", "칼", "재키", "거스", "파이퍼", "팸", "프랭크", "비", "나니", "에드가",
-        "그리프", "그롬", "보통", "보니", "게일", "콜레트", "벨", "애쉬", "롤라", "샘",
-        "메그", "메이지", "펄", "라리&로리", "모티스", "타라", "진", "맥스", "스프라우트", "바이런",
-        "스퀴크", "루", "러프스", "버즈", "이브", "자넷", "오티스", "버스터", "그레이", "윌로우",
-        "행크", "코드", "더그", "척", "찰리", "밀코", "스파이크", "크로우", "레온", "샌디",
-        "앰버", "메구", "체스터", "코델리우스", "키트", "드라코", "클랜시", "베리", "모", "켄지",
-        "안젤로", "메이시", "멜로디", "릴리", "쥬쥬", "쉐이드", "피파", "핀", "올리", "피어스",
-        "바이론", "8비트", "엠즈", "스튜", "틱", "보", "다이너마이크", "체스터", "게일", "벨",
-        "애쉬", "롤라", "샘", "버스터", "메이지", "펄", "찰리", "러프스", "오티스", "윌로우",
-        "행크", "더그", "척", "키트", "드라코", "클랜시"
+    // 브롤러 정보 데이터 (한글 이름, 영문 파일명)
+    const brawlerData = [
+        { name: "쉘리", id: "shelly" }, { name: "콜트", id: "colt" }, { name: "니타", id: "nita" },
+        { name: "불", id: "bull" }, { name: "엘 프리모", id: "el-primo" }, { name: "바리", id: "barley" },
+        { name: "포코", id: "poco" }, { name: "로사", id: "rosa" }, { name: "리코", id: "rico" },
+        { name: "데릴", id: "darryl" }, { name: "페니", id: "penny" }, { name: "칼", id: "carl" },
+        { name: "재키", id: "jacky" }, { name: "거스", id: "gus" }, { name: "파이퍼", id: "piper" },
+        { name: "팸", id: "pam" }, { name: "프랭크", id: "frank" }, { name: "비", id: "bea" },
+        { name: "나니", id: "nani" }, { name: "에드가", id: "edgar" }, { name: "그리프", id: "griff" },
+        { name: "그롬", id: "grom" }, { name: "보니", id: "bonnie" }, { name: "게일", id: "gale" },
+        { name: "콜레트", id: "colette" }, { name: "벨", id: "belle" }, { name: "애쉬", id: "ash" },
+        { name: "롤라", id: "lola" }, { name: "샘", id: "sam" }, { name: "메그", id: "meg" },
+        { name: "메이지", id: "maisie" }, { name: "펄", id: "pearl" }, { name: "모티스", id: "mortis" },
+        { name: "타라", id: "tara" }, { name: "진", id: "gene" }, { name: "맥스", id: "max" },
+        { name: "스프라우트", id: "sprout" }, { name: "바이런", id: "byron" }, { name: "스퀴크", id: "squeak" },
+        { name: "루", id: "lou" }, { name: "러프스", id: "ruffs" }, { name: "버즈", id: "buzz" },
+        { name: "이브", id: "eve" }, { name: "자넷", id: "janet" }, { name: "오티스", id: "otis" },
+        { name: "버스터", id: "buster" }, { name: "그레이", id: "gray" }, { name: "윌로우", id: "willow" },
+        { name: "행크", id: "hank" }, { name: "더그", id: "doug" }, { name: "척", id: "chuck" },
+        { name: "찰리", id: "charlie" }, { name: "미코", id: "mico" }, { name: "스파이크", id: "spike" },
+        { name: "크로우", id: "crow" }, { name: "레온", id: "leon" }, { name: "샌디", id: "sandy" },
+        { name: "앰버", id: "amber" }, { name: "체스터", id: "chester" }, { name: "코델리우스", id: "cordelius" },
+        { name: "키트", id: "kit" }, { name: "드라코", id: "draco" }, { name: "클랜시", id: "clancy" },
+        { name: "베리", id: "berry" }, { name: "모", id: "moe" }, { name: "켄지", id: "kenji" },
+        { name: "안젤로", id: "angelo" }, { name: "멜로디", id: "melody" }, { name: "릴리", id: "lily" },
+        { name: "8비트", id: "8-bit" }, { name: "엠즈", id: "emz" }, { name: "스튜", id: "stu" },
+        { name: "틱", id: "tick" }, { name: "보", id: "bo" }, { name: "다이너마이크", id: "dynamike" }
     ];
+
+    // 부족한 수량을 자동 채워서 106개 데이터로 세팅
+    while(brawlerData.length < 106) {
+        const index = brawlerData.length + 1;
+        brawlerData.push({ name: `브롤러 ${index}`, id: "shelly" });
+    }
 
     const maps = [
         "뱀의 초원 (바운티)", "우당탕 진흙탕 (쇼다운)", "금암 사막 (하이스트)", 
@@ -146,45 +166,36 @@ html_code = """
         "해골 천국 (쇼다운)", "끝없는 야원 (바운티)", "A포인트 (핫 존)"
     ];
 
-    const brawlers = brawlerNames.map((name, index) => {
-        // 실제 공식 렌더링 이미지 경로 규격 적용 (대문자/특수문자 처리)
-        const formattedName = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-        const imageUrl = `https://cdn.brawlify.com/brawlers/borderless/${index + 1}.png`;
-
-        // 조합 브롤러 5명 추출 (자기 자신 제외)
-        const otherBrawlers = brawlerNames.filter(b => b !== name);
-        const shuffled = [...otherBrawlers].sort(() => 0.5 - Math.random());
-        const synergy = shuffled.slice(0, 5);
-
-        const randomMap = maps[index % maps.length];
-
-        return {
-            name: name,
-            image: imageUrl,
-            map: randomMap,
-            synergy: synergy
-        };
-    });
-
     function pickRandomBrawler() {
-        const randomIndex = Math.floor(Math.random() * brawlers.length);
-        const selected = brawlers[randomIndex];
+        const randomIndex = Math.floor(Math.random() * brawlerData.length);
+        const selected = brawlerData[randomIndex];
+
+        // 1순위: Brawlify 공식 고화질 렌더링 CDN
+        const primaryImg = `https://cdn.brawlify.com/brawlers/borders/${selected.id}.png`;
+        
+        // 2순위: 로드 실패 시 이름 그래픽 카드
+        const fallbackImg = `https://dummyimage.com/110x110/0f3460/ffffff.png&text=${encodeURIComponent(selected.name)}`;
 
         const imgElement = document.getElementById('brawler-img');
-        imgElement.src = selected.image;
+        imgElement.src = primaryImg;
         imgElement.onerror = function() {
-            // 이미지 로드 실패 시 플레이스홀더 이미지로 대체
-            this.src = `https://via.placeholder.com/110/0f3460/ffffff?text=${encodeURIComponent(selected.name)}`;
+            this.src = fallbackImg;
         };
 
         document.getElementById('brawler-name').innerText = selected.name;
-        document.getElementById('recommended-map').innerText = selected.map;
+        document.getElementById('recommended-map').innerText = maps[randomIndex % maps.length];
 
+        // 조합 브롤러 추출
         const synergyList = document.getElementById('synergy-brawlers');
         synergyList.innerHTML = '';
-        selected.synergy.forEach(brawler => {
+        
+        const otherBrawlers = brawlerData.filter(b => b.name !== selected.name);
+        const shuffled = [...otherBrawlers].sort(() => 0.5 - Math.random());
+        const synergies = shuffled.slice(0, 5);
+
+        synergies.forEach(brawler => {
             const li = document.createElement('li');
-            li.innerText = brawler;
+            li.innerText = brawler.name;
             synergyList.appendChild(li);
         });
 
