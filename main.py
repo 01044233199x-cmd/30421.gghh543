@@ -118,12 +118,9 @@
 </div>
 
 <script>
-    // 106명 브롤러 데이터 프레임워크 (샘플 데이터 및 자동 생성 처리)
-    // 실제 전체 데이터를 개별 수정하려면 아래 배열 요소를 수정하세요.
     const brawlers = Array.from({ length: 106 }, (_, i) => {
         const id = i + 1;
         
-        // 예시용 기본 데이터 세팅
         if (id === 1) {
             return {
                 name: "쉘리",
@@ -141,9 +138,39 @@
             };
         }
 
-        // 3번부터 106번까지는 템플릿 데이터로 자동 생성됩니다.
         return {
             name: `브롤러 #${id}`,
             image: `https://via.placeholder.com/120?text=Brawler+${id}`,
             map: "우당탕 진흙탕, 우주선 정거장, 해골 천국",
-            synergy:
+            synergy: [
+                `조합 브롤러 A`,
+                `조합 브롤러 B`,
+                `조합 브롤러 C`,
+                `조합 브롤러 D`,
+                `조합 브롤러 E`
+            ]
+        };
+    });
+
+    function pickRandomBrawler() {
+        const randomIndex = Math.floor(Math.random() * brawlers.length);
+        const selected = brawlers[randomIndex];
+
+        document.getElementById('brawler-img').src = selected.image;
+        document.getElementById('brawler-name').innerText = selected.name;
+        document.getElementById('recommended-map').innerText = selected.map;
+
+        const synergyList = document.getElementById('synergy-brawlers');
+        synergyList.innerHTML = '';
+        selected.synergy.forEach(brawler => {
+            const li = document.createElement('li');
+            li.innerText = brawler;
+            synergyList.appendChild(li);
+        });
+
+        document.getElementById('result').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
