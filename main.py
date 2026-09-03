@@ -1,9 +1,15 @@
+import random
+import streamlit as st
+import streamlit.components.v1 as components
+
+st.set_page_config(page_title="랜덤 브롤 추천", page_icon="🥊", layout="centered")
+
+# HTML/CSS/JS 구현
+html_code = """
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>랜덤 브롤 추천</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -12,36 +18,36 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
             margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
+            padding: 10px;
         }
         .container {
             background-color: #16213e;
             border-radius: 15px;
-            padding: 30px;
-            max-width: 500px;
+            padding: 25px;
+            max-width: 450px;
             width: 100%;
             text-align: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             border: 2px solid #0f3460;
+            box-sizing: border-box;
         }
         h1 {
             color: #e94560;
-            margin-bottom: 25px;
-            font-size: 2rem;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
         }
         button {
             background-color: #e94560;
             color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 1.1rem;
+            padding: 12px 25px;
+            font-size: 1rem;
             font-weight: bold;
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
+            width: 100%;
         }
         button:hover {
             background-color: #ff6b81;
@@ -50,41 +56,43 @@
             transform: scale(0.98);
         }
         .result-card {
-            margin-top: 30px;
+            margin-top: 20px;
             display: none;
             background-color: #0f3460;
             border-radius: 10px;
-            padding: 20px;
+            padding: 15px;
             text-align: left;
         }
         .brawler-image {
-            width: 120px;
-            height: 120px;
+            width: 110px;
+            height: 110px;
             object-fit: cover;
             border-radius: 10px;
             display: block;
-            margin: 0 auto 15px auto;
+            margin: 0 auto 10px auto;
             border: 3px solid #e94560;
         }
         .brawler-name {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             text-align: center;
             color: #f9d342;
             margin-bottom: 15px;
+            font-weight: bold;
         }
         .info-section {
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
         .info-title {
             font-weight: bold;
             color: #e94560;
             margin-bottom: 5px;
+            font-size: 0.95rem;
         }
         .info-content {
             background-color: #16213e;
-            padding: 10px;
+            padding: 8px 12px;
             border-radius: 5px;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             line-height: 1.4;
         }
         .synergy-list {
@@ -174,3 +182,6 @@
 
 </body>
 </html>
+"""
+
+components.html(html_code, height=650)
