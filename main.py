@@ -1,196 +1,85 @@
 import streamlit as st
-import streamlit.components.v1 as components
+import requests
 
 st.set_page_config(page_title="랜덤 브롤 추천", page_icon="🥊", layout="centered")
 
-html_code = """
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1a1a2e;
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            padding: 10px;
-        }
-        .container {
-            background-color: #16213e;
-            border-radius: 15px;
-            padding: 25px;
-            max-width: 450px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            border: 2px solid #0f3460;
-            box-sizing: border-box;
-        }
-        h1 {
-            color: #e94560;
-            margin-bottom: 20px;
-            font-size: 1.8rem;
-        }
-        button {
-            background-color: #e94560;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-            width: 100%;
-        }
-        button:hover {
-            background-color: #ff6b81;
-        }
-        .result-card {
-            margin-top: 20px;
-            display: none;
-            background-color: #0f3460;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: left;
-        }
-        .brawler-image {
-            width: 120px;
-            height: 120px;
-            object-fit: contain;
-            border-radius: 12px;
-            display: block;
-            margin: 0 auto 10px auto;
-            border: 3px solid #e94560;
-            background-color: #1a1a2e;
-        }
-        .brawler-name {
-            font-size: 1.5rem;
-            text-align: center;
-            color: #f9d342;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-        .info-section {
-            margin-bottom: 10px;
-        }
-        .info-title {
-            font-weight: bold;
-            color: #e94560;
-            margin-bottom: 5px;
-            font-size: 0.95rem;
-        }
-        .info-content {
-            background-color: #16213e;
-            padding: 8px 12px;
-            border-radius: 5px;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-        .synergy-list {
-            margin: 0;
-            padding-left: 20px;
-        }
-    </style>
-</head>
-<body>
+# 한글 이름 매핑 사전
+KOREAN_NAMES = {
+    "Shelly": "쉘리", "Colt": "콜트", "Bull": "불", "Brock": "브록", "Rico": "리코",
+    "Spike": "스파이크", "Barley": "발리", "Jessie": "제시", "Nita": "니타", "Dynamike": "다이너마이크",
+    "El Primo": "엘 프리모", "Mortis": "모티스", "Crow": "크로우", "Poco": "포코", "Bo": "보",
+    "Piper": "파이퍼", "Tara": "타라", "Pam": "팸", "Frank": "프랭크", "Penny": "페니",
+    "Darryl": "데릴", "Leon": "레온", "Gene": "진", "Carl": "칼", "Rosa": "로사",
+    "Bibi": "비비", "Tick": "틱", "8-Bit": "8비트", "Sandy": "샌디", "Emz": "엠즈",
+    "Bea": "비", "Max": "맥스", "Mr. P": "미스터 P", "Sprout": "스프라우트", "Jacky": "잭키",
+    "Gale": "게일", "Nani": "나니", "Surge": "서지", "Colette": "콜레트", "Amber": "앰버",
+    "Lou": "루", "Byron": "바이런", "Edgar": "에드가", "Ruffs": "러프스", "Stu": "스튜",
+    "Belle": "벨", "Squeak": "스퀴크", "Grom": "그롬", "Buzz": "버즈", "Griff": "그리프", "Ash": "애쉬",
+    "Meg": "메그", "Lola": "롤라", "Fang": "팽", "Eve": "이브", "Janet": "자넷",
+    "Bonnie": "보니", "Otis": "오티스", "Sam": "샘", "Gus": "거스", "Buster": "버스터",
+    "Chester": "체스터", "Gray": "그레이", "Mandy": "맨디", "Willow": "윌로우", "Maisie": "메이지",
+    "Hank": "행크", "Cordelius": "코델리우스", "Doug": "더그", "Pearl": "펄", "Chuck": "척",
+    "Charlie": "찰리", "Mico": "미코", "Kit": "키트", "Larry & Lawrie": "라리 & 로리", "Angelo": "안젤로",
+    "Melodie": "멜로디", "Lily": "릴리", "Draco": "드라코", "Clancy": "클랜시", "Berry": "베리",
+    "Moe": "모", "Kenji": "켄지", "Juju": "쥬쥬", "Shade": "쉐이드"
+}
 
-<div class="container">
-    <h1>랜덤 브롤 추천</h1>
-    <button onclick="pickRandomBrawler()">브롤러 뽑기!</button>
+RECOMMENDED_MAPS = [
+    "뱀의 초원 (바운티)", "우당탕 진흙탕 (쇼다운)", "금암 사막 (하이스트)", 
+    "바위 광산 (잼 그랩)", "중앙 구역 (핫 존)", "우주선 정거장 (브롤 볼)",
+    "해골 천국 (쇼다운)", "끝없는 야원 (바운티)", "A포인트 (핫 존)"
+]
 
-    <div id="result" class="result-card">
-        <img id="brawler-img" class="brawler-image" src="" alt="브롤러 이미지">
-        <div id="brawler-name" class="brawler-name"></div>
+@st.cache_data
+def load_brawlers():
+    try:
+        res = requests.get("https://api.brawlify.com/v1/brawlers", timeout=10)
+        data = res.json()
+        brawlers = []
+        for item in data.get("list", []):
+            eng_name = item.get("name")
+            kor_name = KOREAN_NAMES.get(eng_name, eng_name)
+            img_url = item.get("imageUrl") or f"https://cdn.brawlify.com/brawlers/borderless/{item.get('id')}.png"
+            brawlers.append({"name": kor_name, "image": img_url})
+        return brawlers
+    except Exception:
+        return []
+
+brawlers = load_brawlers()
+
+st.title("🥊 랜덤 브롤 추천")
+
+if not brawlers:
+    st.error("브롤러 데이터를 불러오지 못했습니다. 네트워크 상태를 확인해주세요.")
+else:
+    if "selected_brawler" not in st.session_state:
+        st.session_state.selected_brawler = None
+
+    if st.button("🎲 브롤러 뽑기!", use_container_width=True):
+        import random
+        selected = random.choice(brawlers)
         
-        <div class="info-section">
-            <div class="info-title">🗺️ 추천 맵</div>
-            <div id="recommended-map" class="info-content"></div>
-        </div>
-
-        <div class="info-section">
-            <div class="info-title">🤝 추천 조합 브롤러 (5명)</div>
-            <div class="info-content">
-                <ul id="synergy-brawlers" class="synergy-list"></ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    // 브롤러 고유 ID와 정확한 한글 이름 1:1 매칭 데이터
-    const brawlersData = [
-        { name: "쉘리", id: 16000000 }, { name: "콜트", id: 16000001 }, { name: "불", id: 16000002 },
-        { name: "브록", id: 16000003 }, { name: "리코", id: 16000004 }, { name: "스파이크", id: 16000005 },
-        { name: "발리", id: 16000006 }, { name: "제시", id: 16000007 }, { name: "니타", id: 16000008 },
-        { name: "다이너마이크", id: 16000009 }, { name: "엘 프리모", id: 16000010 }, { name: "모티스", id: 16000011 },
-        { name: "크로우", id: 16000012 }, { name: "포코", id: 16000013 }, { name: "보", id: 16000014 },
-        { name: "파이퍼", id: 16000015 }, { name: "타라", id: 16000016 }, { name: "팸", id: 16000017 },
-        { name: "프랭크", id: 16000018 }, { name: "페니", id: 16000019 }, { name: "데릴", id: 16000020 },
-        { name: "레온", id: 16000021 }, { name: "진", id: 16000022 }, { name: "칼", id: 16000023 },
-        { name: "로사", id: 16000024 }, { name: "비비", id: 16000025 }, { name: "틱", id: 16000026 },
-        { name: "8비트", id: 16000027 }, { name: "샌디", id: 16000028 }, { name: "엠즈", id: 16000029 },
-        { name: "비", id: 16000030 }, { name: "맥스", id: 16000031 }, { name: "미스터 P", id: 16000032 },
-        { name: "스프라우트", id: 16000033 }, { name: "잭키", id: 16000034 }, { name: "게일", id: 16000035 },
-        { name: "나니", id: 16000036 }, { name: "서지", id: 16000037 }, { name: "콜레트", id: 16000038 },
-        { name: "앰버", id: 16000039 }, { name: "루", id: 16000040 }, { name: "바이런", id: 16000041 },
-        { name: "에드가", id: 16000042 }, { name: "러프스", id: 16000043 }, { name: "스튜", id: 16000044 },
-        { name: "벨", id: 16000045 }, { name: "스퀴크", id: 16000046 }, { name: "그롬", id: 16000047 },
-        { name: "버즈", id: 16000048 }, { name: "그리프", id: 16000049 }, { name: "애쉬", id: 16000050 },
-        { name: "메그", id: 16000051 }, { name: "롤라", id: 16000052 }, { name: "팽", id: 16000053 },
-        { name: "이브", id: 16000054 }, { name: "자넷", id: 16000055 }, { name: "보니", id: 16000056 },
-        { name: "오티스", id: 16000057 }, { name: "샘", id: 16000058 }, { name: "거스", id: 16000059 },
-        { name: "버스터", id: 16000060 }, { name: "체스터", id: 16000061 }, { name: "그레이", id: 16000062 },
-        { name: "맨디", id: 16000063 }, { name: "윌로우", id: 16000064 }, { name: "메이지", id: 16000065 },
-        { name: "행크", id: 16000066 }, { name: "코델리우스", id: 16000067 }, { name: "더그", id: 16000068 },
-        { name: "펄", id: 16000069 }, { name: "척", id: 16000070 }, { name: "찰리", id: 16000071 },
-        { name: "미코", id: 16000072 }, { name: "키트", id: 16000073 }, { name: "라리 & 로리", id: 16000074 },
-        { name: "안젤로", id: 16000075 }, { name: "멜로디", id: 16000076 }, { name: "릴리", id: 16000077 },
-        { name: "드라코", id: 16000078 }, { name: "클랜시", id: 16000079 }, { name: "베리", id: 16000080 },
-        { name: "모", id: 16000081 }, { name: "켄지", id: 16000082 }, { name: "쥬쥬", id: 16000083 },
-        { name: "쉐이드", id: 16000084 }
-    ];
-
-    const maps = [
-        "뱀의 초원 (바운티)", "우당탕 진흙탕 (쇼다운)", "금암 사막 (하이스트)", 
-        "바위 광산 (잼 그랩)", "중앙 구역 (핫 존)", "우주선 정거장 (브롤 볼)",
-        "해골 천국 (쇼다운)", "끝없는 야원 (바운티)", "A포인트 (핫 존)"
-    ];
-
-    function pickRandomBrawler() {
-        const randomIndex = Math.floor(Math.random() * brawlersData.length);
-        const selected = brawlersData[randomIndex];
-
-        // 고유 ID에 대응하는 정적 CDN 이미지 매핑
-        const imgUrl = `https://cdn.brawlify.com/brawlers/borderless/${selected.id}.png`;
-
-        document.getElementById('brawler-img').src = imgUrl;
-        document.getElementById('brawler-name').innerText = selected.name;
-        document.getElementById('recommended-map').innerText = maps[randomIndex % maps.length];
-
-        const synergyList = document.getElementById('synergy-brawlers');
-        synergyList.innerHTML = '';
+        # 조합 브롤러 5명 무작위 선정
+        other_brawlers = [b["name"] for b in brawlers if b["name"] != selected["name"]]
+        synergy = random.sample(other_brawlers, min(5, len(other_brawlers)))
+        rec_map = random.choice(RECOMMENDED_MAPS)
         
-        const otherBrawlers = brawlersData.filter(b => b.name !== selected.name);
-        const shuffled = [...otherBrawlers].sort(() => 0.5 - Math.random());
-        const synergies = shuffled.slice(0, 5);
+        st.session_state.selected_brawler = {
+            "name": selected["name"],
+            "image": selected["image"],
+            "map": rec_map,
+            "synergy": synergy
+        }
 
-        synergies.forEach(brawler => {
-            const li = document.createElement('li');
-            li.innerText = brawler.name;
-            synergyList.appendChild(li);
-        });
-
-        document.getElementById('result').style.display = 'block';
-    }
-</script>
-
-</body>
-</html>
-"""
-
-components.html(html_code, height=650)
+    if st.session_state.selected_brawler:
+        res = st.session_state.selected_brawler
+        
+        st.divider()
+        st.image(res["image"], width=120)
+        st.subheader(f"✨ 추천 브롤러: {res['name']}")
+        
+        st.markdown(f"**🗺️ 추천 맵:** {res['map']}")
+        
+        st.markdown("**🤝 추천 조합 브롤러 (5명):**")
+        for member in res["synergy"]:
+            st.markdown(f"- {member}")
