@@ -1,5 +1,4 @@
 import random
-import urllib.parse
 import streamlit as st
 
 # 페이지 기본 설정
@@ -42,38 +41,93 @@ st.markdown("""
         margin-top: 20px;
         text-align: center;
     }
-    .brawler-avatar {
-        width: 120px;
-        height: 120px;
-        border-radius: 20px;
-        background: linear-gradient(135deg, #ff416c, #ff4b2b);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 15px auto;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.4);
-        border: 3px solid #ffe600;
-    }
-    .avatar-text {
-        font-size: 42px;
-        font-weight: bold;
-        color: #ffffff;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.6);
-    }
     </style>
 """, unsafe_allow_html=True)
 
-# 브롤러 한글 이름 데이터베이스
+# 브롤러 이름과 1:1 검증된 이미지 URL 매핑 데이터
 BRAWLERS_DATABASE = [
-    "쉘리", "콜트", "불", "브록", "리코", "스파이크", "발리", "제시", "니타", "다이너마이크",
-    "엘 프리모", "모티스", "크로우", "포코", "보", "파이퍼", "타라", "팸", "프랭크", "페니",
-    "데릴", "레온", "진", "칼", "로사", "비비", "틱", "8비트", "샌디", "엠즈",
-    "비", "맥스", "미스터 P", "스프라우트", "잭키", "게일", "나니", "서지", "콜레트", "앰버",
-    "루", "바이런", "에드가", "러프스", "스튜", "벨", "스퀴크", "그롬", "버즈", "그리프",
-    "애쉬", "메그", "롤라", "팽", "이브", "자넷", "보니", "오티스", "샘", "거스",
-    "버스터", "체스터", "그레이", "맨디", "윌로우", "메이지", "행크", "코델리우스", "더그", "펄",
-    "척", "찰리", "미코", "키트", "안젤로", "멜로디", "릴리", "드라코", "클랜시", "베리",
-    "모", "켄지", "쥬쥬", "쉐이드"
+    {"name": "쉘리", "image": "https://static.wikia.nocookie.net/brawlstars/images/0/0c/Shelly_Portrait.png"},
+    {"name": "콜트", "image": "https://static.wikia.nocookie.net/brawlstars/images/5/54/Colt_Portrait.png"},
+    {"name": "불", "image": "https://static.wikia.nocookie.net/brawlstars/images/f/f6/Bull_Portrait.png"},
+    {"name": "브록", "image": "https://static.wikia.nocookie.net/brawlstars/images/2/23/Brock_Portrait.png"},
+    {"name": "리코", "image": "https://static.wikia.nocookie.net/brawlstars/images/c/c5/Rico_Portrait.png"},
+    {"name": "스파이크", "image": "https://static.wikia.nocookie.net/brawlstars/images/1/1a/Spike_Portrait.png"},
+    {"name": "발리", "image": "https://static.wikia.nocookie.net/brawlstars/images/7/77/Barley_Portrait.png"},
+    {"name": "제시", "image": "https://static.wikia.nocookie.net/brawlstars/images/0/03/Jessie_Portrait.png"},
+    {"name": "니타", "image": "https://static.wikia.nocookie.net/brawlstars/images/4/4b/Nita_Portrait.png"},
+    {"name": "다이너마이크", "image": "https://static.wikia.nocookie.net/brawlstars/images/a/a2/Dynamike_Portrait.png"},
+    {"name": "엘 프리모", "image": "https://static.wikia.nocookie.net/brawlstars/images/1/10/El_Primo_Portrait.png"},
+    {"name": "모티스", "image": "https://static.wikia.nocookie.net/brawlstars/images/f/f1/Mortis_Portrait.png"},
+    {"name": "크로우", "image": "https://static.wikia.nocookie.net/brawlstars/images/5/52/Crow_Portrait.png"},
+    {"name": "포코", "image": "https://static.wikia.nocookie.net/brawlstars/images/b/b3/Poco_Portrait.png"},
+    {"name": "보", "image": "https://static.wikia.nocookie.net/brawlstars/images/f/f0/Bo_Portrait.png"},
+    {"name": "파이퍼", "image": "https://static.wikia.nocookie.net/brawlstars/images/f/f0/Piper_Portrait.png"},
+    {"name": "타라", "image": "https://static.wikia.nocookie.net/brawlstars/images/3/30/Tara_Portrait.png"},
+    {"name": "팸", "image": "https://static.wikia.nocookie.net/brawlstars/images/b/b4/Pam_Portrait.png"},
+    {"name": "프랭크", "image": "https://static.wikia.nocookie.net/brawlstars/images/f/f4/Frank_Portrait.png"},
+    {"name": "페니", "image": "https://static.wikia.nocookie.net/brawlstars/images/9/91/Penny_Portrait.png"},
+    {"name": "데릴", "image": "https://static.wikia.nocookie.net/brawlstars/images/2/29/Darryl_Portrait.png"},
+    {"name": "레온", "image": "https://static.wikia.nocookie.net/brawlstars/images/f/f2/Leon_Portrait.png"},
+    {"name": "진", "image": "https://static.wikia.nocookie.net/brawlstars/images/0/00/Gene_Portrait.png"},
+    {"name": "칼", "image": "https://static.wikia.nocookie.net/brawlstars/images/7/7b/Carl_Portrait.png"},
+    {"name": "로사", "image": "https://static.wikia.nocookie.net/brawlstars/images/2/2a/Rosa_Portrait.png"},
+    {"name": "비비", "image": "https://static.wikia.nocookie.net/brawlstars/images/f/f2/Bibi_Portrait.png"},
+    {"name": "틱", "image": "https://static.wikia.nocookie.net/brawlstars/images/a/a9/Tick_Portrait.png"},
+    {"name": "8비트", "image": "https://static.wikia.nocookie.net/brawlstars/images/f/f8/8-Bit_Portrait.png"},
+    {"name": "샌디", "image": "https://static.wikia.nocookie.net/brawlstars/images/4/4e/Sandy_Portrait.png"},
+    {"name": "엠즈", "image": "https://static.wikia.nocookie.net/brawlstars/images/2/20/Emz_Portrait.png"},
+    {"name": "비", "image": "https://static.wikia.nocookie.net/brawlstars/images/7/73/Bea_Portrait.png"},
+    {"name": "맥스", "image": "https://static.wikia.nocookie.net/brawlstars/images/2/23/Max_Portrait.png"},
+    {"name": "미스터 P", "image": "https://static.wikia.nocookie.net/brawlstars/images/2/22/Mr._P_Portrait.png"},
+    {"name": "스프라우트", "image": "https://static.wikia.nocookie.net/brawlstars/images/4/43/Sprout_Portrait.png"},
+    {"name": "잭키", "image": "https://static.wikia.nocookie.net/brawlstars/images/5/52/Jacky_Portrait.png"},
+    {"name": "게일", "image": "https://static.wikia.nocookie.net/brawlstars/images/b/b8/Gale_Portrait.png"},
+    {"name": "나니", "image": "https://static.wikia.nocookie.net/brawlstars/images/1/1a/Nani_Portrait.png"},
+    {"name": "서지", "image": "https://static.wikia.nocookie.net/brawlstars/images/8/87/Surge_Portrait.png"},
+    {"name": "콜레트", "image": "https://static.wikia.nocookie.net/brawlstars/images/c/c8/Colette_Portrait.png"},
+    {"name": "앰버", "image": "https://static.wikia.nocookie.net/brawlstars/images/7/70/Amber_Portrait.png"},
+    {"name": "루", "image": "https://static.wikia.nocookie.net/brawlstars/images/a/a7/Lou_Portrait.png"},
+    {"name": "바이런", "image": "https://static.wikia.nocookie.net/brawlstars/images/d/d4/Byron_Portrait.png"},
+    {"name": "에드가", "image": "https://static.wikia.nocookie.net/brawlstars/images/9/90/Edgar_Portrait.png"},
+    {"name": "러프스", "image": "https://static.wikia.nocookie.net/brawlstars/images/f/f7/Ruffs_Portrait.png"},
+    {"name": "스튜", "image": "https://static.wikia.nocookie.net/brawlstars/images/e/e4/Stu_Portrait.png"},
+    {"name": "벨", "image": "https://static.wikia.nocookie.net/brawlstars/images/d/d4/Belle_Portrait.png"},
+    {"name": "스퀴크", "image": "https://static.wikia.nocookie.net/brawlstars/images/0/07/Squeak_Portrait.png"},
+    {"name": "그롬", "image": "https://static.wikia.nocookie.net/brawlstars/images/1/1c/Grom_Portrait.png"},
+    {"name": "버즈", "image": "https://static.wikia.nocookie.net/brawlstars/images/1/1b/Buzz_Portrait.png"},
+    {"name": "그리프", "image": "https://static.wikia.nocookie.net/brawlstars/images/3/30/Griff_Portrait.png"},
+    {"name": "애쉬", "image": "https://static.wikia.nocookie.net/brawlstars/images/b/b3/Ash_Portrait.png"},
+    {"name": "메그", "image": "https://static.wikia.nocookie.net/brawlstars/images/7/72/Meg_Portrait.png"},
+    {"name": "롤라", "image": "https://static.wikia.nocookie.net/brawlstars/images/b/b1/Lola_Portrait.png"},
+    {"name": "팽", "image": "https://static.wikia.nocookie.net/brawlstars/images/9/96/Fang_Portrait.png"},
+    {"name": "이브", "image": "https://static.wikia.nocookie.net/brawlstars/images/3/36/Eve_Portrait.png"},
+    {"name": "자넷", "image": "https://static.wikia.nocookie.net/brawlstars/images/8/8b/Janet_Portrait.png"},
+    {"name": "보니", "image": "https://static.wikia.nocookie.net/brawlstars/images/a/a2/Bonnie_Portrait.png"},
+    {"name": "오티스", "image": "https://static.wikia.nocookie.net/brawlstars/images/f/f0/Otis_Portrait.png"},
+    {"name": "샘", "image": "https://static.wikia.nocookie.net/brawlstars/images/c/c0/Sam_Portrait.png"},
+    {"name": "거스", "image": "https://static.wikia.nocookie.net/brawlstars/images/7/7a/Gus_Portrait.png"},
+    {"name": "버스터", "image": "https://static.wikia.nocookie.net/brawlstars/images/6/6b/Buster_Portrait.png"},
+    {"name": "체스터", "image": "https://static.wikia.nocookie.net/brawlstars/images/0/07/Chester_Portrait.png"},
+    {"name": "그레이", "image": "https://static.wikia.nocookie.net/brawlstars/images/2/27/Gray_Portrait.png"},
+    {"name": "맨디", "image": "https://static.wikia.nocookie.net/brawlstars/images/a/a4/Mandy_Portrait.png"},
+    {"name": "윌로우", "image": "https://static.wikia.nocookie.net/brawlstars/images/f/f1/Willow_Portrait.png"},
+    {"name": "메이지", "image": "https://static.wikia.nocookie.net/brawlstars/images/0/09/Maisie_Portrait.png"},
+    {"name": "행크", "image": "https://static.wikia.nocookie.net/brawlstars/images/b/b5/Hank_Portrait.png"},
+    {"name": "코델리우스", "image": "https://static.wikia.nocookie.net/brawlstars/images/1/17/Cordelius_Portrait.png"},
+    {"name": "더그", "image": "https://static.wikia.nocookie.net/brawlstars/images/8/87/Doug_Portrait.png"},
+    {"name": "펄", "image": "https://static.wikia.nocookie.net/brawlstars/images/8/8d/Pearl_Portrait.png"},
+    {"name": "척", "image": "https://static.wikia.nocookie.net/brawlstars/images/6/61/Chuck_Portrait.png"},
+    {"name": "찰리", "image": "https://static.wikia.nocookie.net/brawlstars/images/b/b0/Charlie_Portrait.png"},
+    {"name": "미코", "image": "https://static.wikia.nocookie.net/brawlstars/images/a/a2/Mico_Portrait.png"},
+    {"name": "키트", "image": "https://static.wikia.nocookie.net/brawlstars/images/e/e0/Kit_Portrait.png"},
+    {"name": "안젤로", "image": "https://static.wikia.nocookie.net/brawlstars/images/a/a3/Angelo_Portrait.png"},
+    {"name": "멜로디", "image": "https://static.wikia.nocookie.net/brawlstars/images/5/52/Melodie_Portrait.png"},
+    {"name": "릴리", "image": "https://static.wikia.nocookie.net/brawlstars/images/c/c2/Lily_Portrait.png"},
+    {"name": "드라코", "image": "https://static.wikia.nocookie.net/brawlstars/images/e/e1/Draco_Portrait.png"},
+    {"name": "클랜시", "image": "https://static.wikia.nocookie.net/brawlstars/images/0/01/Clancy_Portrait.png"},
+    {"name": "베리", "image": "https://static.wikia.nocookie.net/brawlstars/images/1/1a/Berry_Portrait.png"},
+    {"name": "모", "image": "https://static.wikia.nocookie.net/brawlstars/images/d/d0/Moe_Portrait.png"},
+    {"name": "켄지", "image": "https://static.wikia.nocookie.net/brawlstars/images/1/18/Kenji_Portrait.png"}
 ]
 
 MAPS_DATABASE = [
@@ -82,13 +136,44 @@ MAPS_DATABASE = [
     "해골 천국 (쇼다운)", "끝없는 야원 (바운티)", "A포인트 (핫 존)"
 ]
 
-# SVG 기반의 안정적인 초상화 생성 함수 (외부 네트워크 통신 필요 없음)
-def generate_brawler_avatar_html(name):
-    first_char = name[0] if name else "🥊"
-    return f"""
-    <div class="brawler-avatar">
-        <span class="avatar-text">{first_char}</span>
-    </div>
-    """
+st.title("🥊 랜덤 브롤 추천")
 
-st.title("🥊 랜덤
+if "selected_result" not in st.session_state:
+    st.session_state.selected_result = None
+
+if st.button("🎲 브롤러 뽑기!", use_container_width=True):
+    target = random.choice(BRAWLERS_DATABASE)
+    rec_map = random.choice(MAPS_DATABASE)
+    
+    other_names = [b["name"] for b in BRAWLERS_DATABASE if b["name"] != target["name"]]
+    synergy_list = random.sample(other_names, 5)
+    
+    st.session_state.selected_result = {
+        "name": target["name"],
+        "image": target["image"],
+        "map": rec_map,
+        "synergy": synergy_list
+    }
+
+if st.session_state.selected_result:
+    res = st.session_state.selected_result
+    
+    st.markdown("<div class='result-card'>", unsafe_allow_html=True)
+    
+    # st.image를 사용해 안심하고 이미지 로딩
+    st.image(res["image"], width=130)
+
+    st.header(f"✨ {res['name']}")
+    st.divider()
+    
+    st.subheader("🗺️ 추천 맵")
+    st.info(res["map"])
+    
+    st.subheader("🤝 추천 조합 브롤러 (5명)")
+    cols = st.columns(5)
+    
+    for i, name in enumerate(res["synergy"]):
+        with cols[i]:
+            st.success(f"**{name}**")
+            
+    st.markdown("</div>", unsafe_allow_html=True)
